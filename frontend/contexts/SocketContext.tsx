@@ -31,11 +31,15 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
 
   useEffect(() => {
     if (user && token) {
+      console.log('Connecting to:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
+      
       const newSocket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001', {
         auth: {
           token,
           userId: user.id,
         },
+        transports: ['websocket', 'polling'],
+        timeout: 20000,
       });
 
       newSocket.on('connect', () => {
@@ -49,6 +53,11 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
       newSocket.on('disconnect', () => {
         setIsConnected(false);
         console.log('Disconnected from server');
+      });
+
+      newSocket.on('connect_error', (error) => {
+        console.error('Socket connection error:', error);
+        setIsConnected(false);
       });
 
       newSocket.on('new_notification', (notification) => {

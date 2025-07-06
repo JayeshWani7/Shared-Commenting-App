@@ -15,11 +15,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
       process.env.FRONTEND_URL || 'http://localhost:3000',
       'http://localhost:3000',
       'https://localhost:3000',
+      'https://shared-commenting-app.vercel.app',
       /\.vercel\.app$/,
       /\.netlify\.app$/,
       /\.onrender\.com$/,
     ],
     credentials: true,
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   },
 })
 @UseGuards(JwtAuthGuard)
