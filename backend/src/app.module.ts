@@ -37,7 +37,7 @@ import { Notification } from './notifications/entities/notification.entity';
           type: 'postgres',
           url: databaseUrl,
           entities: [User, Comment, Notification],
-          synchronize: process.env.NODE_ENV !== 'production',
+          synchronize: false, // Use migrations instead of synchronize
           logging: process.env.NODE_ENV !== 'production',
           autoLoadEntities: true,
           // Use environment variable to control SSL, fallback to detecting local postgres
