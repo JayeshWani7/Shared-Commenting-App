@@ -11,7 +11,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+      'http://localhost:3000',
+      'https://localhost:3000',
+      /\.vercel\.app$/,
+      /\.netlify\.app$/,
+      /\.onrender\.com$/,
+    ],
     credentials: true,
   },
 })

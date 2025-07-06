@@ -12,9 +12,6 @@ RUN npm ci --network-timeout=300000 --maxsockets=5 && npm cache clean --force
 # Copy source code
 COPY . .
 
-# Ensure public directory exists
-RUN mkdir -p ./public
-
 # Build application
 RUN npm run build
 
@@ -24,17 +21,17 @@ FROM node:18-alpine AS production
 WORKDIR /app
 
 # Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init curl
+RUN apk add --no-cache dumb-init
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 
-# Copy built application from build stage
-COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy package files and install only production dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev --network-timeout=300000 --maxsockets=5 && npm cache clean --force
 
-# Copy public directory (create empty if doesn't exist)
-RUN mkdir -p ./public
+# Copy built application from build stage
+COPY --from=build --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=build --chown=nextjs:nodejs /app/public ./public
 
 # Switch to non-root user
@@ -47,8 +44,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:3000 || exit 1
 
-# Use dumb-init to handle signals properly
+# Use dumb-init to handle signals properly and start the application
 ENTRYPOINT ["dumb-init", "--"]
-
-# Start the application
-CMD ["node", "server.js"]
+CMD ["npm", "start"]

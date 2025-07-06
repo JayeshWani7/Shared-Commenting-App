@@ -83,6 +83,34 @@ cd frontend
 npm run dev
 ```
 
+## 🆓 Free Hosting
+
+Deploy your Comment App for **FREE** using these platforms:
+
+### Quick Deploy (Recommended FREE Stack)
+1. **Database**: [Supabase](https://supabase.com) - 500MB PostgreSQL + Realtime
+2. **Backend**: [Railway](https://railway.app) - 500 hours/month
+3. **Frontend**: [Vercel](https://vercel.com) - Unlimited static hosting
+
+```bash
+# 1. Setup for free hosting
+powershell -ExecutionPolicy Bypass -File setup-free-hosting.ps1
+
+# 2. Push to GitHub
+git add . && git commit -m "Ready for free hosting" && git push
+
+# 3. Follow the FREE-HOSTING-GUIDE.md
+```
+
+### Other Free Options
+- **Render**: All-in-one free hosting (750 hours/month)
+- **Fly.io**: $5/month free credit allowance
+- **Netlify + Railway**: Static frontend + API backend
+
+**Total Cost: $0/month** ✨
+
+📖 **Detailed Guide**: See `FREE-HOSTING-GUIDE.md` for step-by-step instructions
+
 ## 📁 Project Structure
 
 ```
