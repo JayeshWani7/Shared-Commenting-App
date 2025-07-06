@@ -13,42 +13,41 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
 
-  // Rate limiting
+  // Rate limiting middleware
   app.use(
     rateLimit({
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 100, // limit each IP to 100 requests per windowMs
+      max: 100, // limit each IP to 100 requests per window
       message: 'Too many requests from this IP, please try again later.',
     }),
   );
 
-  // CORS configuration
-  const allowedOrigins = [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
-    'http://localhost:3000',
-    'https://localhost:3000',
-    'https://shared-commenting-app.vercel.app',
-    'https://shared-commenting-app-production.up.railway.app',
-  ].filter(Boolean);
-
+  // CORS Configuration
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, etc.)
-      if (!origin) return callback(null, true);
-      
-      // Check if the origin is in the allowed list
-      if (allowedOrigins.some(allowedOrigin => {
-        if (allowedOrigin.includes('*')) {
-          // Handle wildcard domains
-          const pattern = allowedOrigin.replace(/\*/g, '.*');
-          return new RegExp(`^${pattern}$`).test(origin);
-        }
-        return allowedOrigin === origin;
-      })) {
+      if (!origin) return callback(null, true); // Allow non-browser clients
+
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'https://localhost:3000',
+        'https://shared-commenting-app.vercel.app',
+        'https://shared-commenting-app-production.up.railway.app',
+      ];
+
+      const wildcardOrigins = [
+        /\.vercel\.app$/,
+        /\.netlify\.app$/,
+        /\.onrender\.com$/,
+      ];
+
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        wildcardOrigins.some((regex) => regex.test(origin));
+
+      if (isAllowed) {
         callback(null, true);
       } else {
-        console.log(`CORS blocked origin: ${origin}`);
-        console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+        console.log(`❌ CORS blocked origin: ${origin}`);
         callback(new Error('Not allowed by CORS'));
       }
     },
@@ -66,7 +65,7 @@ async function bootstrap() {
     }),
   );
 
-  // API prefix
+  // Global API prefix
   app.setGlobalPrefix('api');
 
   // Swagger documentation
@@ -76,15 +75,16 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  // Start the server
   const port = process.env.PORT || 3001;
   await app.listen(port);
-  
+
   console.log(`🚀 Comment App Backend running on port ${port}`);
-  console.log(`📚 API Documentation: http://localhost:${port}/api`);
+  console.log(`📚 API Docs: http://localhost:${port}/api`);
 }
 
 bootstrap();
